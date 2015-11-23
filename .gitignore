@@ -44,7 +44,7 @@ Temporary Items
 
 # IDE files
 *.iml
-idea/
+.idea/
 
 # IDE compliation output
 out/
