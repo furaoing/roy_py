@@ -2,6 +2,12 @@
 
 import base64
 
+"""
+
+python3.4+ only
+
+"""
+
 
 def b64_to_img(b64_str_pth, dst_pth):
     with open(b64_str_pth, "r") as f:
