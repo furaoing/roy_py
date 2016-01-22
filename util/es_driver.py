@@ -1,15 +1,71 @@
-from string import Template
-from fin_data_crawler.config import es_base_url, index, type
+# -*- coding: utf-8 -*-
+
+import sys
+
 import requests
 import json
+from TaikorCommon.config.database import ElasticSearch
 
 
 class ESdriver(object):
-    def __init__(self, _es_base_url=es_base_url, _index=index, _type=type):
-        self.url = Template("${es_base_url}/${index}/${type}")
-        self.url = self.url.substitute(es_base_url=_es_base_url, index=_index, type=_type)
+    """
+       Legacy Class
+    """
+    def __init__(self, es_base_url, es_index, es_type):
+        self.url = "%s/%s/%s" % (str(es_base_url),
+                                 str(es_index),
+                                 str(es_type))
 
-    def post_to_es(self, _data):
-        r = requests.post(self.url, data=json.dumps(_data, ensure_ascii=False))
+    def post_to_es(self, es_data):
+        r = requests.post(self.url,
+                          data=json.dumps(es_data, ensure_ascii=False))
         response = r.text
         return response
+
+
+class ES(object):
+    def __init__(self,
+                 es_search_url=ElasticSearch.es_search_url,
+                 es_index_url=ElasticSearch.es_index_url):
+        """
+        Define ES connection urls
+        :param url:
+        :return:
+        """
+        self.es_search_url = es_search_url
+        self.es_index_url = es_index_url
+
+    def insert(self, es_index, es_type, doc):
+        """
+        Post A json doc into ES server (indexing)
+        :param es_index:
+        :param es_type:
+        :param doc:
+        :return:
+        """
+        index_url = "%s/%s/%s" % (str(self.es_index_url),
+                                  str(es_index),
+                                  str(es_type)
+                                  )
+        r = requests.post(self.es_index_url,
+                          data=json.dumps(doc, ensure_ascii=False))
+        response = r.text
+        return response
+
+    def search(self, query):
+        """
+        Proceed am elastic search based on the search query string
+        :param query:
+        :return:
+        """
+        r = requests.post(self.es_search_url,
+                          data=json.dumps(query, ensure_ascii=False))
+        response = r.text
+        return response
+
+
+if __name__ == "__main__":
+    query = {"query":{"match":{"url":"eeebc"}}}
+    my_es = ES()
+    res = my_es.search(query)
+    print(res)

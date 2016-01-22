@@ -1,46 +1,72 @@
+# -*- coding: utf-8 -*-
+
 import time
-from mysql_driver import MySQLdriver
 
 
-def get_formated_time():
-    struct_time = time.localtime()
-    year = struct_time.tm_year
-    month = struct_time.tm_mon
-    day = struct_time.tm_mday
-    hour = struct_time.tm_hour
-    min = struct_time.tm_min
-    sec = struct_time.tm_sec
-    formated_time = str(year) + "-" + str(month) + "-" + str(day) + "T" + str(hour) + ":" + str(min) + ":" + str(sec) + "+08:00"
-    return formated_time
+class Time(object):
+    def get_time_zone(self):
+        time_zone_affix = None
+        local_time_struct = time.localtime()
+        gmt_time_struct = time.gmtime()
+        time_diff = local_time_struct.tm_hour - gmt_time_struct.tm_hour
+        if time_diff < 10:
+            time_zone_affix = "+0%d:00" % time_diff
+        else:
+            time_zone_affix = "+%d:00" % time_diff
+        return time_zone_affix
 
 
-def es_to_mysql(json_obj, table):
-    sql_part1 = "insert into " + table
-    keys = json_obj.keys()
+class TimeFormater(Time):
+    """
+    Create a UTC style string to represent time
+    """
+    def __init__(self, style="es"):
+        self.style = style
 
-    sql_part2 = "("
-    for key in keys:
-        sql_part2 += key
-        sql_part2 += ","
-    sql_part2 = sql_part2.rstrip(",")
-    sql_part2 += ")"
+    def _add_zero_char(self, my_int):
+        my_str = str(my_int)
+        if len(my_str) == 1:
+            my_str = "0" + my_str
+        return my_str
 
-    sql_part3 = "("
-    for key in keys:
-        sql_part3 += "'" + str(json_obj[key]) + "'"
-        sql_part3 += ","
-    sql_part3 = sql_part3.rstrip(",")
-    sql_part3 += ")"
+    def format_time(self):
+        style = self.style
+        formated_time = None
+        style_enum = ("es", "mysql", "log")
 
-    sql = sql_part1 + " " + sql_part2 + " values " + sql_part3
-    return sql
+        if style not in style_enum:
+            raise Exception
+
+        struct_time = time.localtime()
+        year = struct_time.tm_year
+        month = struct_time.tm_mon
+        day = struct_time.tm_mday
+        hour = struct_time.tm_hour
+        _min = struct_time.tm_min
+        sec = struct_time.tm_sec
+
+        year = self._add_zero_char(year)
+        month = self._add_zero_char(month)
+        day = self._add_zero_char(day)
+        hour = self._add_zero_char(hour)
+        _min = self._add_zero_char(_min)
+        sec = self._add_zero_char(sec)
+
+        if style == "es":
+            formated_time = year + "-" + month + "-" + day + "T" + \
+                            hour + ":" + _min + ":" + sec + self.get_time_zone()
+        elif style == "mysql":
+            formated_time = year + "-" + month + "-" + day + " " + \
+                            hour + ":" + _min + ":" + sec
+        else:
+            formated_time = year + "-" + month + "-" + day + " " + \
+                            hour + ":" + _min + ":" + sec
+
+        return formated_time
 
 
 if __name__ == "__main__":
-    mysql = MySQLdriver("localhost", "root", "", "stock_market")
-    json_obj = {"id": "23er454f"}
-    table = "financial_summary"
-    sql = es_to_mysql(json_obj, table)
-    print(sql)
-    mysql.insert(sql)
-    mysql.clean_up()
+    tf = TimeFormater("es")
+    print(tf.format_time())
+    b = time.tzname
+    a = 1

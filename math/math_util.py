@@ -3,8 +3,9 @@ import math
 
 
 def sigmoid(x, para=None):
-    buffer = 1/(1 + math.exp(-x))
-    return buffer
+    # sigmoid function
+    _buffer = 1/(1 + math.exp(-x))
+    return _buffer
 
 
 if __name__ == "__main__":
