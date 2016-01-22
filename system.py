@@ -22,9 +22,17 @@ def listdir_enchanced(folder):
 
 
 def get_content(file, mode="read"):
+    """
+    Return a iterable object when "iterable" is given as the argument for "mode"
+    :param file:
+    :param mode:
+    :return:
+    """
     if mode == "read":
         with codecs.open(file, "r", encoding="utf8") as f:
             s = f.read()
+        return s
+
     if mode == "readlines":
         with codecs.open(file, "r", encoding="utf8") as f:
             s = f.readlines()
@@ -33,7 +41,16 @@ def get_content(file, mode="read"):
                 s[i] = s[i].strip("\r")
                 s[i] = s[i].strip(" ")
                 s[i] = s[i].strip("\t")
-    return s
+        return s
+
+    if mode == "iterable":
+        my_f = open(file, "r")
+        while True:
+            s = my_f.readline()
+            if not s:
+                my_f.close()
+                break
+            yield s
 
 
 def get_content_list(file):
