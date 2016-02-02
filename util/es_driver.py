@@ -65,7 +65,7 @@ class ES(object):
 
 
 if __name__ == "__main__":
-    query = {"query":{"match":{"url":"eeebc"}}}
+    query = {"query":{"bool":{"must":[{"query_string":{"default_field":"_id","query":"b0f020a51b2c929ad296ad6b5f7a0f52"}}],"must_not":[],"should":[]}},"from":0,"size":3,"sort":[],"facets":{}}
     my_es = ES()
     res = my_es.search(query)
     print(res)
