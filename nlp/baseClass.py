@@ -56,7 +56,7 @@ class BatchProcessor(object):
 
         for key in global_pos_list.keys():
             global_pos_list[key] = math.log(self.N/global_pos_list[key], 10)
-
+            # TODO: global_pos_list[key] might equals zero
         return global_pos_list
 
     def tfidf(self):
